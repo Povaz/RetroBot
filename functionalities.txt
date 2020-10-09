@@ -1,0 +1,24 @@
+List of required bot commands:
+
+    /enroll: To enroll a new player
+    /players: returns list of players
+    /leaderboard: returns leaderboard
+
+    /info game: retrieve all game info
+
+    /addshort game: add short game
+    /addmedium game: add medium game
+    /addlong game: add long game
+
+    /addeasy game easy: add easy mode
+    /addhard game hard: add hard mode
+    /addchallenge game challenge: add challenge mode
+    /addcomment game comment: add additional comment for the game
+
+    /winner game: set the game winner
+
+    /easy game: game finished at Easy
+    /hard game: game finished at Hard
+    /challenge game: challenge on game finished
+
+    /newseason: reset all the information for a new season
