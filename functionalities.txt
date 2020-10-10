@@ -22,3 +22,6 @@ List of required bot commands:
     /challenge game: challenge on game finished
 
     /newseason: reset all the information for a new season
+
+
+1323151706:AAFh-IXy2SHJm7cJjb1fV_JYnrlYHs02pj0

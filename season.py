@@ -1,6 +1,6 @@
 from game import Game
 from player import Player
-from months import Months
+from month import Month
 
 # DURATION CONSTANTS
 SEASON_DURATION = 4
@@ -32,33 +32,38 @@ class Season:
 
     # /newseason ADMIN-Command
     def __init__(self, start_month):
-        self.months = [Months.sum(start_month, i) for i in range(0, SEASON_DURATION)]
-        self.current_month = Months(start_month)
+        self.months = [Month.sum(start_month, i) for i in range(0, SEASON_DURATION)]
+        self.current_month = Month(start_month)
         self.proposed_games = []
         self.active_games = []
         self.passed_games = []
         self.players = []
 
+    # TODO Backup procedure
+    # TODO Player ID needs to be Telegram ID since Player Username can change
+    # TODO /resetshort, /resetmedium, /resetlong commands to let people re-insert the game
+    # TODO /resetshort player_name, /resetmedium player_name, /resetlong player_name for letting the admin act
+
     # /enroll command
-    def add_player(self, player_name):
-        self.players.append(Player(player_name))
+    def add_player(self, player_id, player_name):
+        self.players.append(Player(player_id, player_name))
         return 'Player successfully enrolled!'
 
     # /addshort 'game_title' command
-    def add_shortgame(self, game_title, player_name):
-        return self.add_proposedgame(game_title, SHORT_DURATION, player_name)
+    def add_shortgame(self, game_title, player_id):
+        return self.add_proposedgame(game_title, SHORT_DURATION, player_id)
 
     # /addmedium 'game_title' command
-    def add_mediumgame(self, game_title, player_name):
-        return self.add_proposedgame(game_title, MEDIUM_DURATION, player_name)
+    def add_mediumgame(self, game_title, player_id):
+        return self.add_proposedgame(game_title, MEDIUM_DURATION, player_id)
 
     # /addlong 'game_title' command
-    def add_longgame(self, game_title, player_name):
-        return self.add_proposedgame(game_title, LONG_DURATION, player_name)
+    def add_longgame(self, game_title, player_id):
+        return self.add_proposedgame(game_title, LONG_DURATION, player_id)
 
-    def add_proposedgame(self, game_title, game_length, player_name):
+    def add_proposedgame(self, game_title, game_length, player_id):
         for player in self.players:
-            if player_name == player.name:
+            if player_id == player.id:
                 game = Game(game_title, game_length, player)
                 success, message = player.add_proposed(game)
                 if success:
@@ -118,8 +123,8 @@ class Season:
         return [game.title for game in self.proposed_games if (not game.active and game.length == length)]
 
     # /vote 'times'
-    def record_votes(self, player_name, times):
-        player = self.__player_by_name(player_name)
+    def record_votes(self, player_id, times):
+        player = self.__player_by_id(player_id)
         if player:
             player.add_votes(times)
         else:
@@ -159,12 +164,12 @@ class Season:
         return 'Not even writing the name correctly. (Game not found).'
 
     # /easy 'game_title' command
-    def easy_finished(self, game_title, player_name):
-        player = self.__player_by_name(player_name)
+    def easy_finished(self, game_title, player_id):
+        player = self.__player_by_id(player_id)
         if player:
             game = self.__activegame_by_title(game_title)
             if game:
-                game.add_count(player)
+                game.add_count()
                 count = game.get_count()
                 points = EASY_POINTS
                 if count <= 3:
@@ -176,8 +181,8 @@ class Season:
             return 'Player does not exists.'
 
     # /hard 'game_title' command
-    def hard_finished(self, game_title, player_name):
-        player = self.__player_by_name(player_name)
+    def hard_finished(self, game_title, player_id):
+        player = self.__player_by_id(player_id)
         if player:
             game = self.__activegame_by_title(game_title)
             if game:
@@ -188,8 +193,8 @@ class Season:
             return 'Player does not exists.'
 
     # /challenge 'game_title' command
-    def challenge_completed(self, game_title, player_name):
-        player = self.__player_by_name(player_name)
+    def challenge_completed(self, game_title, player_id):
+        player = self.__player_by_id(player_id)
         if player:
             game = self.__activegame_by_title(game_title)
             if game:
@@ -199,9 +204,9 @@ class Season:
         else:
             return 'Player does not exists.'
 
-    def __player_by_name(self, name):
+    def __player_by_id(self, player_id):
         for player in self.players:
-            if player.name == name:
+            if player.id == player_id:
                 return player
         return None
 
@@ -213,7 +218,7 @@ class Season:
 
     # /nextmonth command
     def next_month(self):
-        self.current_month = Months.sum(self.current_month.value, 1)
+        self.current_month = Month.sum(self.current_month.value, 1)
         if self.current_month not in self.months:
             msg = 'This was the last month for this Season!'
         else:
@@ -273,10 +278,10 @@ class Season:
         return 'Season Badges points have been added! Check the Leaderboard to discover who has won!'
 
     # /bestscreenshot 'player_name' ADMIN-command
-    def screenshot_badge(self, player_name):
-        player = self.__player_by_name(player_name)
+    def screenshot_badge(self, player_id):
+        player = self.__player_by_id(player_id)
         player.add_points(SCREENSHOT_POINTS)
-        return 'Best Screenshot points added to ' + player_name + ' points!'
+        return 'Best Screenshot points added to ' + player.name + ' points!'
 
     # /leaderboard command
     def get_leaderboard(self):
@@ -286,4 +291,3 @@ class Season:
     # /activeinfo command
     def get_activegames(self):
         return self.active_games
-

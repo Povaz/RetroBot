@@ -1,4 +1,4 @@
-from months import Months
+from month import Month
 
 
 class Game:
@@ -32,7 +32,7 @@ class Game:
 
     def set_active(self, month):
         self.active = True
-        self.months = [Months.sum(month.value, i) for i in range(0, self.length)]
+        self.months = [Month.sum(month.value, i) for i in range(0, self.length)]
 
     def get_active(self):
         return self.active

@@ -1,4 +1,6 @@
 from season import Season
+import json
+import jsonpickle
 
 season = Season(9)
 
@@ -51,3 +53,7 @@ season.challenge_completed('TLOZ2', 'sirio')
 
 season.next_month()
 season.winner('Metroid')
+
+seasonjson = jsonpickle.encode(season)
+parsed = json.loads(seasonjson)
+print(json.dumps(parsed, indent=4))
