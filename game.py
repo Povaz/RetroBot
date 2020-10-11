@@ -1,11 +1,12 @@
 from month import Month
+from enum import Enum
 
 
 class Game:
 
     def __init__(self, title, length, player):
         self.title = title
-        self.length = length
+        self.type = GameType(length)
         self.player = player
 
         self.easy = None
@@ -16,7 +17,12 @@ class Game:
         self.active = False
         self.months = []
 
-        self.count = 0
+        self.easy_players = []
+        self.hard_players = []
+        self.challenge_players = []
+
+        self.bestscreenshot_player = None
+        self.bestscreenshot = None
 
     def set_easy(self, desc):
         self.easy = desc
@@ -32,13 +38,31 @@ class Game:
 
     def set_active(self, month):
         self.active = True
-        self.months = [Month.sum(month.value, i) for i in range(0, self.length)]
+        self.months = [Month.sum(month.value, i) for i in range(0, self.type.value)]
 
     def get_active(self):
         return self.active
 
-    def add_count(self):
-        self.count += 1
+    def add_easyplayer(self, player):
+        self.easy_players.append(player)
 
-    def get_count(self):
-        return self.count
+    def get_easyplayers(self):
+        return self.easy_players
+
+    def add_hardplayer(self, player):
+        self.hard_players.append(player)
+
+    def get_hardplayers(self):
+        return self.hard_players
+
+    def add_challengeplayer(self, player):
+        self.challenge_players.append(player)
+
+    def get_challengeplayer(self):
+        return self.challenge_players
+
+
+class GameType(Enum):
+    Short = 1
+    Medium = 2
+    Long = 4

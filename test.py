@@ -1,20 +1,18 @@
 from season import Season
-import json
-import jsonpickle
 
 season = Season(9)
 
-season.add_player('povaz')
-season.add_player('sirio')
+season.add_player(0, 'povaz')
+season.add_player(1, 'sirio')
 
-season.add_shortgame('Metroid', 'povaz')
-season.add_shortgame('TLOZ', 'sirio')
+season.add_shortgame('Metroid', 0)
+season.add_shortgame('TLOZ', 1)
 
-season.add_mediumgame('Metroid2', 'povaz')
-season.add_mediumgame('TLOZ2', 'sirio')
+season.add_mediumgame('Metroid2', 0)
+season.add_mediumgame('TLOZ2', 1)
 
-season.add_longgame('Metroid3', 'povaz')
-season.add_longgame('TLOZ3', 'sirio')
+season.add_longgame('Metroid3', 0)
+season.add_longgame('TLOZ3', 1)
 
 season.add_easymode('Metroid', 'Finish the Game.')
 season.add_hardmode('Metroid', 'Finish the Game without Save States')
@@ -44,16 +42,10 @@ season.winner('TLOZ3')
 season.winner('TLOZ2')
 season.winner('TLOZ')
 
-season.easy_finished('TLOZ', 'povaz')
-season.hard_finished('TLOZ2', 'povaz')
+season.easy_finished('TLOZ', 0)
+season.hard_finished('TLOZ2', 0)
 
-season.easy_finished('TLOZ', 'sirio')
-season.hard_finished('TLOZ2', 'sirio')
-season.challenge_completed('TLOZ2', 'sirio')
+season.easy_finished('TLOZ', 1)
+season.hard_finished('TLOZ2', 1)
+season.challenge_completed('TLOZ2', 1)
 
-season.next_month()
-season.winner('Metroid')
-
-seasonjson = jsonpickle.encode(season)
-parsed = json.loads(seasonjson)
-print(json.dumps(parsed, indent=4))

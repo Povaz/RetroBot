@@ -9,12 +9,14 @@ class Player:
         self.votes = 0
         self.played = []
 
+        self.badges = []
+
     def add_points(self, points):
         self.points += points
 
     def add_proposed(self, game):
         for proposal in self.proposed:
-            if proposal.length == game.length:
+            if proposal.type == game.type:
                 return False, 'Already proposed a game of this length.'
         self.proposed.append(game)
         return True, 'Game successfully proposed!'
@@ -28,6 +30,7 @@ class Player:
             self.played.append({
                 'game': game,
                 'mode': mode,
+                'position': len(game.easy_players),
                 'challenge': False
             })
 
@@ -45,6 +48,10 @@ class Player:
                     self.add_points(points)
                     return 'Challenge successfully registered for ' + game_title + '!'
         return 'Game not finished yet.'
+
+    def add_badge(self, badge):
+        self.badges.append(badge)
+        self.points += badge.points
 
     def __is_in_played(self, game):
         for g in self.played:
