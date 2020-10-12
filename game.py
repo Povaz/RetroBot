@@ -58,7 +58,7 @@ class Game:
     def add_challengeplayer(self, player):
         self.challenge_players.append(player)
 
-    def get_challengeplayer(self):
+    def get_challengeplayers(self):
         return self.challenge_players
 
 

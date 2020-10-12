@@ -28,7 +28,7 @@ class Season:
         self.passed_games = []
         self.players = []
 
-    # TODO All text messages and points should be read from a static file, so it's possible to change them
+    # TODO Admin must be able to revoke completed games and badges
 
     # /enroll command
     def add_player(self, player_id, player_name):
@@ -65,15 +65,15 @@ class Season:
 
     # /resetshort command and /resetshort 'player_name' ADMIN-command
     def reset_shortgame(self, player_id, player_name=None):
-        self.reset_game(player_id, SHORT_DURATION, player_name=player_name)
+        return self.reset_game(player_id, SHORT_DURATION, player_name=player_name)
 
     # /resetmedium command and /resetmedium 'player_name' ADMIN-command
     def reset_mediumgame(self, player_id, player_name=None):
-        self.reset_game(player_id, MEDIUM_DURATION, player_name=player_name)
+        return self.reset_game(player_id, MEDIUM_DURATION, player_name=player_name)
 
     # /resetlong command and /resetlong 'player_name' ADMIN-command
     def reset_longgame(self, player_id, player_name=None):
-        self.reset_game(player_id, LONG_DURATION, player_name=player_name)
+        return self.reset_game(player_id, LONG_DURATION, player_name=player_name)
 
     def reset_game(self, player_id, game_length, player_name=None):
         if player_name:
@@ -141,19 +141,20 @@ class Season:
         return self.retrieve(LONG_DURATION)
 
     def retrieve(self, length):
-        return [game.title for game in self.proposed_games if (not game.active and game.type.value == length)]
+        return [game for game in self.proposed_games if (not game.active and game.type.value == length)]
 
     # /vote 'times'
     def record_votes(self, player_id, times):
         player = self.__player_by_id(player_id)
         if player:
             player.add_votes(times)
-
+            msg = 'Votes added successfully! You voted ' + str(player.votes) + ' times!'
             # VoterBadge
             voter_badge = VoterBadge(player)
             if voter_badge.check_condition():
                 player.add_badge(voter_badge)
-                return voter_badge.message
+                msg += voter_badge.message
+            return msg
         else:
             return 'Player does not exists.'
 
@@ -177,22 +178,23 @@ class Season:
 
     # /activelist command
     def retrieve_active(self):
-        return [game.title for game in self.active_games]
+        return [game for game in self.active_games]
 
     # /proposelist command
     def retrieve_proposed(self):
-        return [game.title for game in self.proposed_games]
+        return [game for game in self.proposed_games]
 
     # /pastlist command
     def retrieve_passed(self):
-        return [game.title for game in self.passed_games]
+        return [game for game in self.passed_games]
 
     # /infogame 'game_title' command
-    def retrieve_info(self, game_title):
-        for game in self.proposed_games:
-            if game.title == game_title:
-                return [game.title, game.easy, game.hard, game.challenge, game.comment, game.active, game.months]
-        return 'Not even writing the name correctly. (Game not found).'
+    def retrieve_game(self, game_title):
+        game = self.__game_by_title(game_title)
+        if game:
+            return game
+        else:
+            return 'Not even writing the name correctly. (Game not found).'
 
     # /easy 'game_title' command
     def easy_finished(self, game_title, player_id):
@@ -335,10 +337,6 @@ class Season:
     def get_leaderboard(self):
         leaderboard = sorted(self.players, key=lambda x: x.points, reverse=True)
         return leaderboard
-
-    # /activeinfo command
-    def get_activegames(self):
-        return self.active_games
 
     # /backups ADMIN-command
     def backup(self):
