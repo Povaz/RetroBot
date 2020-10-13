@@ -6,6 +6,7 @@ class SpeedBadge:
         self.player = player
         self.game = game
         self.message = 'Speed Badge (+' + str(self.points) + ')!'
+        self.string = 'Speed Badge (' + self.game.title + ')'
 
     def check_condition(self):
         if len(self.game.get_easyplayers()) <= 3:
@@ -23,6 +24,7 @@ class ScreenshotBadge:
         if image:
             self.image = image
         self.message = player.name + ' won the Best Screenshot Badge (+' + str(self.points) + ') for ' + game.title + '!'
+        self.string = 'Screenshot Badge (' + self.game.title + ')'
 
 
 class VoteWinnerBadge:
@@ -32,6 +34,7 @@ class VoteWinnerBadge:
         self.player = player
         self.game = game
         self.message = self.game.title + ' was proposed by ' + player.name + '! VoteWinner Badge (+' + str(self.points) + ')!'
+        self.string = 'VoteWinner Badge (' + self.game.title + ')'
 
 
 class ShitheadBadge:
@@ -41,6 +44,7 @@ class ShitheadBadge:
         self.player = player
         self.game = game
         self.message = 'Not even playing what you propose. Shithead Badge (' + str(self.points) + ') for' + self.player.name
+        self.string = 'Shithead Badge (' + self.game.title + ')'
 
     def check_condition(self):
         if self.game.title not in [played['game'].title for played in self.player.played]:
@@ -55,6 +59,7 @@ class VoterBadge:
         self.points = 2
         self.player = player
         self.message = player.name + ' voted in each election! VoterBadge (+' + str(self.points) + ') for him!'
+        self.string = 'Voter Badge'
 
     def check_condition(self):
         if self.player.votes == 7:
@@ -70,6 +75,7 @@ class CompletionistBadge:
         self.player = player
         self.message = player.name + ' completed all the game for this Season! ' \
                                      'CompletionistBadge (+' + str(self.points) + ') for him!'
+        self.string = 'Completionist Badge'
 
     def check_condition(self):
         if len(self.player.played) == 21:
@@ -85,6 +91,7 @@ class TryhardBadge:
         self.player = player
         self.message = player.name + ' completed 5 games at Hard difficulty! ' \
                                      'TryhardBadge (+' + str(self.points) + ') for him!'
+        self.string = 'Tryhard Badge'
 
     def check_condition(self):
         hardplayed = self.get_hardplayed_count()
@@ -114,6 +121,7 @@ class HardcoreBadge:
         self.player = player
         self.message = player.name + ' completed 4 challenges in this season! ' \
                                      'HardcoreBadge (+' + str(self.points) + ') for him!'
+        self.string = 'Hardcore Badge'
 
     def check_condition(self):
         challenges = self.get_challenge_count()

@@ -25,7 +25,7 @@ class Player:
         self.votes += votes
 
     def add_played(self, game, mode, points):
-        finished = self.__is_in_played(game)
+        finished = self.is_in_played(game)
         if not finished:
             self.played.append({
                 'game': game,
@@ -53,8 +53,46 @@ class Player:
         self.badges.append(badge)
         self.points += badge.points
 
-    def __is_in_played(self, game):
+    def is_in_played(self, game):
         for g in self.played:
             if g['game'].title == game.title:
                 return True
         return False
+
+    def challenge_complete(self, game):
+        for g in self.played:
+            if g['game'] == game.title:
+                return g['challenge']
+        return False
+
+    def hard_count(self):
+        count = 0
+        for game in self.played:
+            if game['mode'] == 'hard':
+                count += 1
+        return count
+
+    def get_player_string(self):
+        msg = '*' + self.name + '*\n'
+        msg += '    ID: ' + str(self.id) + '\n'
+        msg += '    Points: ' + str(self.points) + '\n'
+        msg += '    Games proposed: ' + self.gameliststring(self.proposed) + '\n'
+        msg += '    Games played: ' + self.gameliststring(self.played) + '\n'
+        msg += '    Votes: ' + str(self.votes) + '\n'
+        msg += '    Badges: ' + self.badgeliststring(self.badges) + '\n'
+        return msg
+
+    @staticmethod
+    def badgeliststring(badgelist):
+        msg = ''
+        for badge in badgelist:
+            msg += badge.string + ', '
+        return msg
+
+    @staticmethod
+    def gameliststring(gamelist):
+        msg = ''
+        for game in gamelist:
+            msg += game.title
+            msg += '\n'
+        return msg

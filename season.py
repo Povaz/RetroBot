@@ -28,8 +28,6 @@ class Season:
         self.passed_games = []
         self.players = []
 
-    # TODO Admin must be able to revoke completed games and badges
-
     # /enroll command
     def add_player(self, player_id, player_name):
         if not self.__player_by_id(player_id):
@@ -154,6 +152,12 @@ class Season:
             if voter_badge.check_condition():
                 player.add_badge(voter_badge)
                 msg += voter_badge.message
+            else:
+                for badge in player.badges:
+                    if isinstance(badge, VoterBadge):
+                        player.badges.remove(badge)
+                        player.add_points(badge.points)
+                        msg += 'Voter Badge removed! Stop sends false votes with your fat fingers, please.'
             return msg
         else:
             return 'Player does not exists.'
@@ -196,28 +200,69 @@ class Season:
         else:
             return 'Not even writing the name correctly. (Game not found).'
 
+    # /infoplayer 'player_name' command
+    def retrieve_player(self, player_name):
+        player = self.__player_by_name(player_name)
+        if player_name:
+            return player.get_player_string()
+        else:
+            return 'Not even writing the name correctly. (Player not found).'
+
     # /easy 'game_title' command
     def easy_finished(self, game_title, player_id):
         player = self.__player_by_id(player_id)
         if player:
             game = self.__activegame_by_title(game_title)
             if game:
-                game.add_easyplayer(player)
-                msg = player.add_played(game, 'easy', EASY_POINTS)
+                if player.is_in_played(game):
+                    return 'This player has already completed this game!'
+                else:
+                    game.add_easyplayer(player)
+                    msg = player.add_played(game, 'easy', EASY_POINTS)
 
-                # Speed Badge
-                speed_badge = SpeedBadge(player, game)
-                if speed_badge.check_condition():
-                    player.add_badge(speed_badge)
-                    msg += ' ' + speed_badge.message
+                    # Speed Badge
+                    speed_badge = SpeedBadge(player, game)
+                    if speed_badge.check_condition():
+                        player.add_badge(speed_badge)
+                        msg += ' ' + speed_badge.message
 
-                # Completionist Badge
-                completionist_badge = CompletionistBadge(player)
-                if completionist_badge.check_condition():
-                    player.add_badge(completionist_badge)
-                    msg += ' ' + completionist_badge.message
+                    # Completionist Badge
+                    completionist_badge = CompletionistBadge(player)
+                    if completionist_badge.check_condition():
+                        player.add_badge(completionist_badge)
+                        msg += ' ' + completionist_badge.message
 
-                return msg
+                    return msg
+            else:
+                return 'Game is not active or does not exists! You cheating scum!'
+        else:
+            return 'Player does not exists.'
+
+    # /forceeasy 'game_title-player_name' ADMIN-command
+    def forceeasy_finished(self, game_title, player_name):
+        player = self.__player_by_name(player_name)
+        if player:
+            game = self.__game_by_title(game_title)
+            if game:
+                if player.is_in_played(game):
+                    return 'This player has already completed this game!'
+                else:
+                    game.add_easyplayer(player)
+                    msg = player.add_played(game, 'easy', EASY_POINTS)
+
+                    # Speed Badge
+                    speed_badge = SpeedBadge(player, game)
+                    if speed_badge.check_condition():
+                        player.add_badge(speed_badge)
+                        msg += ' ' + speed_badge.message
+
+                    # Completionist Badge
+                    completionist_badge = CompletionistBadge(player)
+                    if completionist_badge.check_condition():
+                        player.add_badge(completionist_badge)
+                        msg += ' ' + completionist_badge.message
+
+                    return msg
             else:
                 return 'Game is not active or does not exists! You cheating scum!'
         else:
@@ -237,7 +282,21 @@ class Season:
                     player.played.remove(deleted)
                     player.add_points(-EASY_POINTS)
                     game.easy_players.remove(player)
-                    return 'Easy mode successfully revoked!'
+                    msg = 'Easy mode successfully revoked from ' + player.name + ' !\n'
+
+                    # Revoke Speedbadge Routine
+                    for badge in player.badges:
+                        if isinstance(badge, SpeedBadge):
+                            if badge.game == game_title:
+                                player.badges.remove(badge)
+                                player.add_points(-badge.points)
+                                msg += 'Speedbadge successfully revoked from ' + player.name + ' !\n'
+                                if len(game.easy_players) >= 3:
+                                    speedbadge = SpeedBadge(game.easy_players[2], game)
+                                    game.easy_players[2].add_badge(speedbadge)
+                                    msg += 'Speedbadge successfully reassigned to ' + game.easy_players[2].name + ' !\n'
+
+                    return msg
                 return 'This has not completed this game on this difficulty!'
             else:
                 return 'Game not found!'
@@ -250,22 +309,55 @@ class Season:
         if player:
             game = self.__activegame_by_title(game_title)
             if game:
-                game.add_hardplayer(player)
-                msg = player.add_played(game, 'hard', HARD_POINTS)
+                if player.is_in_played(game):
+                    return 'This player has already completed this game!'
+                else:
+                    game.add_hardplayer(player)
+                    msg = player.add_played(game, 'hard', HARD_POINTS)
 
-                # Completionist Badge
-                completionist_badge = CompletionistBadge(player)
-                if completionist_badge.check_condition():
-                    player.add_badge(completionist_badge)
-                    msg += ' ' + completionist_badge.message
+                    # Completionist Badge
+                    completionist_badge = CompletionistBadge(player)
+                    if completionist_badge.check_condition():
+                        player.add_badge(completionist_badge)
+                        msg += ' ' + completionist_badge.message
 
-                # Tryhard Badge
-                tryhard_badge = TryhardBadge(player)
-                if tryhard_badge.check_condition():
-                    player.add_badge(tryhard_badge)
-                    msg += ' ' + tryhard_badge.message
+                    # Tryhard Badge
+                    tryhard_badge = TryhardBadge(player)
+                    if tryhard_badge.check_condition():
+                        player.add_badge(tryhard_badge)
+                        msg += ' ' + tryhard_badge.message
 
-                return msg
+                    return msg
+            else:
+                return 'Game is not active or does not exists! You cheating scum!'
+        else:
+            return 'Player does not exists.'
+
+    # /forcehard 'game_title-player_name' ADMIN-command
+    def forcehard_finished(self, game_title, player_name):
+        player = self.__player_by_name(player_name)
+        if player:
+            game = self.__game_by_title(game_title)
+            if game:
+                if player.is_in_played(game):
+                    return 'This player has already completed this game!'
+                else:
+                    game.add_hardplayer(player)
+                    msg = player.add_played(game, 'hard', HARD_POINTS)
+
+                    # Completionist Badge
+                    completionist_badge = CompletionistBadge(player)
+                    if completionist_badge.check_condition():
+                        player.add_badge(completionist_badge)
+                        msg += ' ' + completionist_badge.message
+
+                    # Tryhard Badge
+                    tryhard_badge = TryhardBadge(player)
+                    if tryhard_badge.check_condition():
+                        player.add_badge(tryhard_badge)
+                        msg += ' ' + tryhard_badge.message
+
+                    return msg
             else:
                 return 'Game is not active or does not exists! You cheating scum!'
         else:
@@ -285,7 +377,21 @@ class Season:
                     player.played.remove(deleted)
                     player.add_points(-HARD_POINTS)
                     game.hard_players.remove(player)
-                    return 'Hard mode successfully revoked!'
+
+                    msg = 'Hard mode successfully revoked! \n'
+                    for badge in player.badges:
+                        if isinstance(badge, CompletionistBadge):
+                            player.add_points(-badge.points)
+                            player.badges.remove(badge)
+                            msg += 'Completionist Badge successfully revoked from ' + player.name + ' !\n'
+
+                    for badge in player.badges:
+                        if isinstance(badge, TryhardBadge):
+                            if not badge.check_condition():
+                                player.add_points(-badge.points)
+                                player.badges.remove(badge)
+                                msg += 'Tryhard Badge successfully revoked from ' + player.name + ' !\n'
+                    return msg
                 return 'This has not completed this game on this difficulty!'
             else:
                 return 'Game not found!'
@@ -298,16 +404,43 @@ class Season:
         if player:
             game = self.__activegame_by_title(game_title)
             if game:
-                game.add_challengeplayer(player)
-                msg = player.set_challenge(game.title, CHALLENGE_POINTS)
+                if player.challenge_complete(game):
+                    return 'This player has already completed the challenge on this game!'
+                else:
+                    game.add_challengeplayer(player)
+                    msg = player.set_challenge(game.title, CHALLENGE_POINTS)
 
-                # Hardcore Badge
-                hardcore_badge = HardcoreBadge(player)
-                if hardcore_badge.check_condition():
-                    player.add_badge(hardcore_badge)
-                    msg += ' ' + hardcore_badge.message
+                    # Hardcore Badge
+                    hardcore_badge = HardcoreBadge(player)
+                    if hardcore_badge.check_condition():
+                        player.add_badge(hardcore_badge)
+                        msg += ' ' + hardcore_badge.message
 
-                return msg
+                    return msg
+            else:
+                return 'Game is not active or does not exists! You cheating scum!'
+        else:
+            return 'Player does not exists.'
+
+    # /forcechallenge 'game_title-player_name' ADMIN-command
+    def forcechallenge_completed(self, game_title, player_name):
+        player = self.__player_by_name(player_name)
+        if player:
+            game = self.__game_by_title(game_title)
+            if game:
+                if player.challenge_complete(game):
+                    return 'This player has already completed the challenge on this game!'
+                else:
+                    game.add_challengeplayer(player)
+                    msg = player.set_challenge(game.title, CHALLENGE_POINTS)
+
+                    # Hardcore Badge
+                    hardcore_badge = HardcoreBadge(player)
+                    if hardcore_badge.check_condition():
+                        player.add_badge(hardcore_badge)
+                        msg += ' ' + hardcore_badge.message
+
+                    return msg
             else:
                 return 'Game is not active or does not exists! You cheating scum!'
         else:
@@ -324,7 +457,15 @@ class Season:
                         played_game['challenge'] = False
                         player.add_points(-CHALLENGE_POINTS)
                         game.challenge_players.remove(player)
-                        return 'Challenge successfully revoked!'
+                        msg = 'Challenge successfully revoked!'
+
+                        for badge in player.badges:
+                            if isinstance(badge, HardcoreBadge):
+                                if not badge.check_condition():
+                                    player.add_points(-badge.points)
+                                    player.badges.remove(badge)
+                                    msg += 'Hardcore Badge successfully revoked from ' + player.name + ' !\n'
+                        return msg
                 return 'This has not completed the challenge on this game!'
             else:
                 return 'Game not found!'
@@ -383,15 +524,42 @@ class Season:
 
         return msg
 
+    # /revokeshithead 'game_title-player_name' ADMIN-command
+    def revoke_shitheadbadge(self, player_name, game_title):
+        player = self.__player_by_name(player_name)
+        game = self.__game_by_title(game_title)
+
+        for badge in player.badges:
+            if isinstance(badge, ShitheadBadge):
+                if badge.game.title == game_title:
+                    player.add_points(-badge.points)
+                    player.badges.remove(badge)
+                    return ' Shithead Badge successfully revoked from ' + player.name + ' on ' + game_title + ' !'
+        return 'No Shithead Badge for ' + player_name + ' on ' + game_title + '!'
+
     # /bestscreenshot 'game_title-player_name' ADMIN-command
-    def screenshot_badge(self, player_id, game_title):
-        player = self.__player_by_id(player_id)
+    def screenshot_badge(self, player_name, game_title):
+        player = self.__player_by_name(player_name)
         game = self.__game_by_title(game_title)
 
         # Screenshot Badge
         screenshot_badge = ScreenshotBadge(player, game)
         player.add_badge(screenshot_badge)
+        game.best_screenshotplayer.append(player)
         return screenshot_badge.message
+
+    # /revokescreenshot 'game_title-player_name' ADMIN-command
+    def revoke_screenshotbadge(self, player_name, game_title):
+        player = self.__player_by_name(player_name)
+        game = self.__game_by_title(game_title)
+
+        for badge in player.badges:
+            if isinstance(badge, ScreenshotBadge):
+                if badge.game.title == game_title:
+                    player.add_points(-badge.points)
+                    player.badges.remove(badge)
+                    return ' Screenshot Badge successfully revoked from ' + player.name + ' on ' + game_title + ' !'
+        return 'No Screenshot Badge for ' + player_name + ' on ' + game_title + '!'
 
     # /leaderboard command
     def get_leaderboard(self):

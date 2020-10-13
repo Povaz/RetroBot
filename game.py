@@ -21,7 +21,7 @@ class Game:
         self.hard_players = []
         self.challenge_players = []
 
-        self.bestscreenshot_player = None
+        self.bestscreenshot_player = []
         self.bestscreenshot = None
 
     def set_easy(self, desc):
