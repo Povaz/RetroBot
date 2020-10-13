@@ -223,6 +223,27 @@ class Season:
         else:
             return 'Player does not exists.'
 
+    # /revokeeasy 'game_title-player_name' ADMIN-command
+    def easy_revoke(self, game_title, player_name):
+        player = self.__player_by_name(player_name)
+        if player:
+            game = self.__game_by_title(game_title)
+            if game:
+                deleted = None
+                for played_game in player.played:
+                    if played_game['game'].title == game_title and played_game['mode'] == 'easy':
+                        deleted = played_game
+                if deleted:
+                    player.played.remove(deleted)
+                    player.add_points(-EASY_POINTS)
+                    game.easy_players.remove(player)
+                    return 'Easy mode successfully revoked!'
+                return 'This has not completed this game on this difficulty!'
+            else:
+                return 'Game not found!'
+        else:
+            return 'Player does not exists.'
+
     # /hard 'game_title' command
     def hard_finished(self, game_title, player_id):
         player = self.__player_by_id(player_id)
@@ -250,6 +271,27 @@ class Season:
         else:
             return 'Player does not exists.'
 
+    # /revokehard 'game_title-player_name' ADMIN-command
+    def hard_revoke(self, game_title, player_name):
+        player = self.__player_by_name(player_name)
+        if player:
+            game = self.__game_by_title(game_title)
+            if game:
+                deleted = None
+                for played_game in player.played:
+                    if played_game['game'].title == game_title and played_game['mode'] == 'hard':
+                        deleted = played_game
+                if deleted:
+                    player.played.remove(deleted)
+                    player.add_points(-HARD_POINTS)
+                    game.hard_players.remove(player)
+                    return 'Hard mode successfully revoked!'
+                return 'This has not completed this game on this difficulty!'
+            else:
+                return 'Game not found!'
+        else:
+            return 'Player does not exists.'
+
     # /challenge 'game_title' command
     def challenge_completed(self, game_title, player_id):
         player = self.__player_by_id(player_id)
@@ -268,6 +310,24 @@ class Season:
                 return msg
             else:
                 return 'Game is not active or does not exists! You cheating scum!'
+        else:
+            return 'Player does not exists.'
+
+    # /revokechallenge 'game_title-player_name' ADMIN-command
+    def challenge_revoke(self, game_title, player_name):
+        player = self.__player_by_name(player_name)
+        if player:
+            game = self.__game_by_title(game_title)
+            if game:
+                for played_game in player.played:
+                    if played_game['game'].title == game_title and played_game['challenge']:
+                        played_game['challenge'] = False
+                        player.add_points(-CHALLENGE_POINTS)
+                        game.challenge_players.remove(player)
+                        return 'Challenge successfully revoked!'
+                return 'This has not completed the challenge on this game!'
+            else:
+                return 'Game not found!'
         else:
             return 'Player does not exists.'
 

@@ -143,6 +143,69 @@ def addlong(update, context):
         update.message.reply_text('Unexpected Shit happened!')
 
 
+# /revokeeasy 'game_title-player_name' ADMIN-command
+def revokeeasy(update, context):
+    """Revoke finished game at easy difficulty."""
+    logger.info(update)
+    global loadbackup_check, nextmonth_check, endseason_check, season
+    loadbackup_check = False
+    endseason_check = False
+    nextmonth_check = False
+    try:
+        if is_admin(update.message['from_user']['id']):
+            message = update.message['text'].replace('/revokeeasy ', '').split('-')
+            game_title = message[0]
+            player_name = message[1]
+            update.message.reply_text(season.easy_revoke(game_title, player_name))
+        else:
+            update.message.reply_text('Not even an admin! weirdChamp')
+    except Exception:
+        logger.exception('An Exception occurred executing /revokeeasy command:')
+        update.message.reply_text('Unexpected Shit happened!')
+
+
+# /revokehard 'game_title-player_name' ADMIN-command
+def revokehard(update, context):
+    """Revoke finished game at hard difficulty."""
+    logger.info(update)
+    global loadbackup_check, nextmonth_check, endseason_check, season
+    loadbackup_check = False
+    endseason_check = False
+    nextmonth_check = False
+    try:
+        if is_admin(update.message['from_user']['id']):
+            message = update.message['text'].replace('/revokehard ', '').split('-')
+            game_title = message[0]
+            player_name = message[1]
+            update.message.reply_text(season.hard_revoke(game_title, player_name))
+        else:
+            update.message.reply_text('Not even an admin! weirdChamp')
+    except Exception:
+        logger.exception('An Exception occurred executing /revokehard command:')
+        update.message.reply_text('Unexpected Shit happened!')
+
+
+# /revokechallenge 'game_title-player_name' ADMIN-command
+def revokechallenge(update, context):
+    """Revoke challenge of a game."""
+    logger.info(update)
+    global loadbackup_check, nextmonth_check, endseason_check, season
+    loadbackup_check = False
+    endseason_check = False
+    nextmonth_check = False
+    try:
+        if is_admin(update.message['from_user']['id']):
+            message = update.message['text'].replace('/revokechallenge ', '').split('-')
+            game_title = message[0]
+            player_name = message[1]
+            update.message.reply_text(season.challenge_revoke(game_title, player_name))
+        else:
+            update.message.reply_text('Not even an admin! weirdChamp')
+    except Exception:
+        logger.exception('An Exception occurred executing /revokechallenge command:')
+        update.message.reply_text('Unexpected Shit happened!')
+
+
 # /resetshort command
 def resetshort(update, context):
     """Resets the Short game for the player who uses the command."""
@@ -557,7 +620,7 @@ def challenge(update, context):
     endseason_check = False
     nextmonth_check = False
     try:
-        game_title = update.message['text'].replace('/hard ', '')
+        game_title = update.message['text'].replace('/challenge ', '')
         player_id = update.message['from_user']['id']
         update.message.reply_text(season.challenge_completed(game_title, player_id))
     except Exception:
@@ -722,12 +785,12 @@ def main():
     # Add Handlers for the Commands
     dp.add_handler(CommandHandler("newseason", newseason))
     dp.add_handler(CommandHandler("enroll", enroll))
-    dp.add_handler(CommandHandler("backup", backup))
-    dp.add_handler(CommandHandler("backuplist", backuplist))
-    dp.add_handler(CommandHandler("loadbackup", loadbackup))
     dp.add_handler(CommandHandler("addshort", addshort))
     dp.add_handler(CommandHandler("addmedium", addmedium))
     dp.add_handler(CommandHandler("addlong", addlong))
+    dp.add_handler(CommandHandler("revokeeasy", revokeeasy))
+    dp.add_handler(CommandHandler("revokehard", revokehard))
+    dp.add_handler(CommandHandler("revokechallenge", revokechallenge))
     dp.add_handler(CommandHandler("resetshort", resetshort))
     dp.add_handler(CommandHandler("resetmedium", resetmedium))
     dp.add_handler(CommandHandler("resetlong", resetlong))
@@ -739,6 +802,21 @@ def main():
     dp.add_handler(CommandHandler("addchallenge", addchallenge))
     dp.add_handler(CommandHandler("addcomment", addcomment))
     dp.add_handler(CommandHandler("list", list))
+    dp.add_handler(CommandHandler("vote", vote))
+    dp.add_handler(CommandHandler("winner", winner))
+    dp.add_handler(CommandHandler("activelist", activelist))
+    dp.add_handler(CommandHandler("proposelist", proposelist))
+    dp.add_handler(CommandHandler("pastlist", pastlist))
+    dp.add_handler(CommandHandler("infogame", infogame))
+    dp.add_handler(CommandHandler("easy", easy))
+    dp.add_handler(CommandHandler("hard", hard))
+    dp.add_handler(CommandHandler("challenge", challenge))
+    dp.add_handler(CommandHandler("nextmonth", nextmonth))
+    dp.add_handler(CommandHandler("bestscreenshot", bestscreenshot))
+    dp.add_handler(CommandHandler("leaderboard", leaderboard))
+    dp.add_handler(CommandHandler("backup", backup))
+    dp.add_handler(CommandHandler("backuplist", backuplist))
+    dp.add_handler(CommandHandler("loadbackup", loadbackup))
 
     # Add Handler for messages not recognized
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, notfound))
