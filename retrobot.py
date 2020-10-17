@@ -132,7 +132,6 @@ def newseason(update, context):
     logger.info(update)
     global loadbackup_check, nextmonth_check, newseason_check, season
     loadbackup_check = False
-    newseason_check = False
     nextmonth_check = False
     try:
         if is_admin(update.message['from_user']['id']):
@@ -963,7 +962,7 @@ def loadbackup(update, context):
 # Unrecognized command
 def notfound(update, context):
     """Command not recognized"""
-    update.message.reply_text('This command does not exist.', parse_mode='Markdown')
+    update.message.reply_text('This command does not exist. COJO, neanche scrivere.', parse_mode='Markdown')
 
 
 def is_admin(user_id):
